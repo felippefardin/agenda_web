@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -29,7 +30,8 @@ $data[] = [
 'title'=>$event->title,
 'start'=>$start,
 'priority'=>$event->priority,
-'time'=>$event->time
+'time'=>$event->time,
+'date'=>$event->date
 ];
 
 }
@@ -37,6 +39,24 @@ $data[] = [
 return response()->json($data);
 
 }
+
+public function getTodayEvents()
+{
+
+$today = Carbon::today();
+
+$events = Event::where(function($query){
+$query->where('user_id',Auth::id())
+->orWhere('shared',true);
+})
+->whereDate('date',$today)
+->orderBy('time','asc')
+->get();
+
+return response()->json($events);
+
+}
+
 public function store(Request $request)
 {
 

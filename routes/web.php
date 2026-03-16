@@ -20,6 +20,7 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::post('/event',[EventController::class,'store']);
     Route::put('/event/{id}',[EventController::class,'update']);
     Route::delete('/event/{id}',[EventController::class,'destroy']);
+    Route::get('/events/today',[EventController::class,'getTodayEvents']);
 
 });
 
