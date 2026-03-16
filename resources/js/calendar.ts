@@ -22,13 +22,14 @@ interactionPlugin
 ],
 
 initialView:'dayGridMonth',
+initialDate:new Date(),
 
 locale:'pt-br',
 
 headerToolbar:{
-left:'prev,next today',
+left:'prev,next',
 center:'title',
-right:'dayGridMonth,timeGridWeek'
+right:'today dayGridMonth,timeGridWeek'
 },
 
 events:'/events',

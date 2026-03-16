@@ -17,26 +17,22 @@
     <div id="calendar"></div>
 </div>
 
-<!-- COMPROMISSOS DO DIA -->
 
+<!-- COMPROMISSOS DO DIA -->
 <div class="bg-white shadow rounded p-6">
 
 <h3 class="text-lg font-bold mb-4">
 Hoje
 </h3>
 
-<div id="todayEvents" class="space-y-2 text-sm text-gray-700">
+<div id="todayEvents" class="grid grid-cols-1 gap-3">
 
-<div class="text-gray-400">
+<div class="text-gray-400 text-sm">
 Nenhum compromisso hoje
 </div>
 
 </div>
 
-</div>
-
-</div>
-</div>
 </div>
 
 <!-- MODAL EVENTO -->
@@ -150,6 +146,47 @@ container.appendChild(div)
 }
 
 document.addEventListener("DOMContentLoaded", loadTodayEvents)
+
+if ("Notification" in window) {
+
+Notification.requestPermission()
+
+}
+
+function checkEventNotifications(){
+
+fetch('/events')
+.then(res=>res.json())
+.then(events=>{
+
+let now = new Date()
+
+events.forEach(event=>{
+
+if(!event.time) return
+
+let eventDateTime = new Date(event.start)
+
+let diff = (eventDateTime - now) / 60000
+
+if(diff > 0 && diff <= 10){
+
+new Notification("Compromisso em breve 🔔",{
+
+body: event.title + " começa às " + event.time
+
+})
+
+}
+
+})
+
+})
+
+}
+
+setInterval(checkEventNotifications,60000)
+
 
 </script>
 
