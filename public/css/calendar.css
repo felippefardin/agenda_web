@@ -59,13 +59,37 @@
 }
 
 /* Destaque para dias que já passaram */
+/* Pinta o fundo dos dias que já passaram de cinza transparente */
 .fc-day-past {
-    background-color: rgba(255, 255, 0, 0.15) !important;
+    background-color: rgba(229, 231, 235, 0.4) !important;
+}
+
+/* Opcional: Deixa o número do dia um pouco mais claro para parecer "desativado" */
+.fc-day-past .fc-daygrid-day-number {
+    opacity: 0.5;
 }
 
 /* Ajuste opcional para o relógio se quiser flutuar */
 #live-clock {
-    letter-spacing: 1px;
-    min-width: 100px;
-    text-align: center;
+    font-family: monospace;
+    font-size: 1.2rem;
+    background: #1f2937;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    margin-left: 15px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Efeito de hover nos quadrados dos dias */
+.fc-daygrid-day:hover {
+    background-color: rgba(243, 244, 246, 0.7) !important;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Garante que o dia selecionado (hoje) ou passados mantenham o hover */
+.fc-day-today:hover, .fc-day-past:hover {
+    filter: brightness(0.95);
 }

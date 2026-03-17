@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* --- LÓGICA DO RELÓGIO EM TEMPO REAL --- */
     const headerTitle = document.querySelector('.font-semibold.text-xl');
-    if (headerTitle) {
+    if (headerTitle && !document.getElementById('live-clock')) {
         const clockDiv = document.createElement('div');
         clockDiv.id = 'live-clock';
         clockDiv.style.cssText = 'font-family: monospace; font-size: 1.2rem; background: #1f2937; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; display: inline-block; vertical-align: middle;';
@@ -27,63 +27,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('eventModal') as HTMLElement
     const dateInput = document.getElementById('date') as HTMLInputElement
     const eventIdInput = document.getElementById('eventId') as HTMLInputElement
-    const statusInput = document.getElementById('status') as HTMLSelectElement // Adicionado para o Status
+    const statusInput = document.getElementById('status') as HTMLSelectElement
 
-    // Função para fechar qualquer card flutuante aberto
     const closeFloatingCards = () => {
         document.querySelectorAll('.event-floating-card').forEach(el => el.remove());
     };
 
     const calendar = new Calendar(calendarEl, {
-        plugins: [
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin
-        ],
-
+        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         initialDate: new Date(),
         locale: 'pt-br',
-
         headerToolbar: {
             left: 'prev,next',
             center: 'title',
             right: 'today dayGridMonth,timeGridWeek'
         },
-
         events: '/events',
         editable: true,
 
         dateClick: function (info) {
             closeFloatingCards();
-            eventIdInput.value = ""
-            dateInput.value = info.dateStr
-            ;(document.getElementById("title") as HTMLInputElement).value = ""
-            ;(document.getElementById("description") as HTMLInputElement).value = ""
-            ;(document.getElementById("time") as HTMLInputElement).value = ""
-            if(statusInput) statusInput.value = "Pendente"; // Reset para o padrão
+            eventIdInput.value = "";
+            dateInput.value = info.dateStr;
+            (document.getElementById("title") as HTMLInputElement).value = "";
+            (document.getElementById("description") as HTMLInputElement).value = "";
+            (document.getElementById("time") as HTMLInputElement).value = "";
+            if (statusInput) statusInput.value = "Pendente";
             
-            modal.classList.remove("hidden")
+            modal.classList.remove("hidden");
         },
 
         eventClick: function (info) {
             closeFloatingCards();
-            
             const event = info.event;
             const color = event.extendedProps.priority === "urgent" ? "#ef4444" : "#3b82f6";
             
-            // Criação do Card Flutuante
             const card = document.createElement('div');
             card.className = 'event-floating-card';
             card.style.cssText = `
-                position: absolute;
-                z-index: 1000;
-                background: white;
-                padding: 15px;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                width: 250px;
-                border-left: 5px solid ${color};
+                position: absolute; z-index: 1000; background: white; padding: 15px;
+                border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                width: 250px; border-left: 5px solid ${color};
             `;
             
             card.innerHTML = `
@@ -101,28 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             document.body.appendChild(card);
-            
-            // Posiciona o card próximo ao clique
             card.style.top = (info.jsEvent.pageY + 10) + 'px';
             card.style.left = (info.jsEvent.pageX + 10) + 'px';
 
-            // Botão de fechar do card
             card.querySelector('.close-card')?.addEventListener('click', () => card.remove());
-
-            // Ação de abrir o seu modal original ao clicar em "Editar" no card
             card.querySelector('#openEditModal')?.addEventListener('click', () => {
                 card.remove();
-                eventIdInput.value = String(event.id)
-                ;(document.getElementById("title") as HTMLInputElement).value = event.title
-                ;(document.getElementById("description") as HTMLInputElement).value = event.extendedProps.description || ""
-                ;(document.getElementById("time") as HTMLInputElement).value = event.extendedProps.time || ""
-                ;(document.getElementById("priority") as HTMLSelectElement).value = event.extendedProps.priority || "normal"
-                if(statusInput) statusInput.value = event.extendedProps.status || "Pendente"; // Carrega o status
-                dateInput.value = event.start?.toISOString().slice(0, 10) ?? ""
-                
-                modal.classList.remove("hidden")
+                eventIdInput.value = String(event.id);
+                (document.getElementById("title") as HTMLInputElement).value = event.title;
+                (document.getElementById("description") as HTMLInputElement).value = event.extendedProps.description || "";
+                (document.getElementById("time") as HTMLInputElement).value = event.extendedProps.time || "";
+                (document.getElementById("priority") as HTMLSelectElement).value = event.extendedProps.priority || "normal";
+                if (statusInput) statusInput.value = event.extendedProps.status || "Pendente";
+                dateInput.value = event.start?.toISOString().slice(0, 10) ?? "";
+                modal.classList.remove("hidden");
             });
-
             info.jsEvent.preventDefault();
         },
 
@@ -165,16 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
             date: dateInput.value,
             time: (document.getElementById("time") as HTMLInputElement).value,
             priority: (document.getElementById("priority") as HTMLSelectElement).value,
-            status: statusInput ? statusInput.value : 'Pendente', // Inclui o Status no salvamento
+            status: statusInput ? statusInput.value : 'Pendente',
             shared: (document.getElementById("shared") as HTMLInputElement).checked
         }
 
-        let url = '/event'
-        let method = 'POST'
-        if (id && id !== "") {
-            url = '/event/' + id
-            method = 'PUT'
-        }
+        let url = id && id !== "" ? '/event/' + id : '/event';
+        let method = id && id !== "" ? 'PUT' : 'POST';
 
         fetch(url, {
             method: method,
@@ -224,4 +198,4 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add("hidden")
         }
     })
-})
+});
