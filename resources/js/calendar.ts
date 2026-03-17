@@ -278,24 +278,41 @@ document.getElementById("saveEvent")?.addEventListener("click", () => {
 });
     
 
-    /* EXCLUIR EVENTO */
-    document.getElementById("deleteEvent")?.addEventListener("click", () => {
-        let id = eventIdInput.value
-        if (!id) return
-        if (!confirm("Deseja excluir este evento?")) return
+    /* EXCLUIR EVENTO - VERSÃO CORRIGIDA */
+document.getElementById("deleteEvent")?.addEventListener("click", () => {
+    let id = eventIdInput.value;
+    if (!id) return;
+    
+    if (!confirm("Deseja realmente excluir este compromisso?")) return;
 
-        fetch('/event/' + id, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
-            }
-        })
-        .then(() => {
-            modal.classList.add("hidden")
-            calendar.refetchEvents()
-        })
+    fetch('/event/' + id, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content,
+            'Accept': 'application/json'
+        }
     })
-
+    .then(async response => {
+        if (response.ok) {
+            // Primeiro exibe o flashcard
+            showFlash('Compromisso excluído', 'error');
+            
+            // Depois fecha o modal e limpa a tela
+            modal.classList.add("hidden");
+            modal.style.display = 'none';
+            
+            // Atualiza o calendário
+            calendar.refetchEvents();
+        } else {
+            const errorData = await response.json();
+            showFlash(errorData.message || 'Erro ao excluir', 'error');
+        }
+    })
+    .catch(error => {
+        console.error("Erro na exclusão:", error);
+        showFlash('Erro de conexão ao excluir', 'error');
+    });
+});
     
 
     /* FECHAR MODAL */
