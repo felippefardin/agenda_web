@@ -5,7 +5,45 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    
+    /* FLASHCARD SYSTEM */
+
+const showFlash = (message: string, type: string = "success") => {
+
+    const container = document.getElementById("flash-container");
+    if (!container) return;
+
+    const flash = document.createElement("div");
+
+    const bg = type === "error" ? "#ef4444" : "#10b981";
+    const icon = type === "error" ? "🗑" : "📅";
+
+    flash.style.cssText = `
+        background:${bg};
+        color:white;
+        padding:12px 18px;
+        border-radius:8px;
+        font-size:14px;
+        box-shadow:0 5px 20px rgba(0,0,0,0.2);
+        display:flex;
+        align-items:center;
+        gap:10px;
+        animation:slideIn .3s ease;
+    `;
+
+    flash.innerHTML = `${icon} ${message}`;
+
+    container.appendChild(flash);
+
+    setTimeout(() => {
+
+        flash.style.opacity = "0";
+        flash.style.transform = "translateY(-10px)";
+        flash.style.transition = "all .3s";
+
+        setTimeout(() => flash.remove(), 300);
+
+    }, 3000);
+}
 
     /* --- LÓGICA DO RELÓGIO EM TEMPO REAL --- */
     const headerTitle = document.querySelector('.font-semibold.text-xl');
@@ -222,9 +260,17 @@ document.getElementById("saveEvent")?.addEventListener("click", () => {
         return result;
     })
     .then(() => {
-        modal.classList.add("hidden");
-        calendar.refetchEvents();
-    })
+
+    modal.classList.add("hidden");
+    calendar.refetchEvents();
+
+    if (id && id !== "") {
+        showFlash("Compromisso editado com sucesso");
+    } else {
+        showFlash("Compromisso adicionado com sucesso");
+    }
+
+})
     .catch(error => {
         console.error("Erro na requisição:", error);
         alert("Erro ao salvar: " + error.message);
@@ -249,6 +295,8 @@ document.getElementById("saveEvent")?.addEventListener("click", () => {
             calendar.refetchEvents()
         })
     })
+
+    
 
     /* FECHAR MODAL */
     document.getElementById("closeModal")?.addEventListener("click", () => {
