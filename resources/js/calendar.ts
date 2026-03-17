@@ -4,12 +4,30 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* --- LÓGICA DO RELÓGIO EM TEMPO REAL --- */
+    const headerTitle = document.querySelector('.font-semibold.text-xl');
+    if (headerTitle) {
+        const clockDiv = document.createElement('div');
+        clockDiv.id = 'live-clock';
+        clockDiv.style.cssText = 'font-family: monospace; font-size: 1.2rem; background: #1f2937; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; display: inline-block; vertical-align: middle;';
+        headerTitle.appendChild(clockDiv);
+
+        const updateClock = () => {
+            const now = new Date();
+            clockDiv.textContent = now.toLocaleTimeString('pt-BR');
+        };
+        setInterval(updateClock, 1000);
+        updateClock();
+    }
+
     const calendarEl = document.getElementById('calendar')
     if (!calendarEl) return
 
     const modal = document.getElementById('eventModal') as HTMLElement
     const dateInput = document.getElementById('date') as HTMLInputElement
     const eventIdInput = document.getElementById('eventId') as HTMLInputElement
+    const statusInput = document.getElementById('status') as HTMLSelectElement // Adicionado para o Status
 
     // Função para fechar qualquer card flutuante aberto
     const closeFloatingCards = () => {
@@ -43,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ;(document.getElementById("title") as HTMLInputElement).value = ""
             ;(document.getElementById("description") as HTMLInputElement).value = ""
             ;(document.getElementById("time") as HTMLInputElement).value = ""
+            if(statusInput) statusInput.value = "Pendente"; // Reset para o padrão
             
             modal.classList.remove("hidden")
         },
@@ -98,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ;(document.getElementById("description") as HTMLInputElement).value = event.extendedProps.description || ""
                 ;(document.getElementById("time") as HTMLInputElement).value = event.extendedProps.time || ""
                 ;(document.getElementById("priority") as HTMLSelectElement).value = event.extendedProps.priority || "normal"
+                if(statusInput) statusInput.value = event.extendedProps.status || "Pendente"; // Carrega o status
                 dateInput.value = event.start?.toISOString().slice(0, 10) ?? ""
                 
                 modal.classList.remove("hidden")
@@ -145,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: dateInput.value,
             time: (document.getElementById("time") as HTMLInputElement).value,
             priority: (document.getElementById("priority") as HTMLSelectElement).value,
+            status: statusInput ? statusInput.value : 'Pendente', // Inclui o Status no salvamento
             shared: (document.getElementById("shared") as HTMLInputElement).checked
         }
 

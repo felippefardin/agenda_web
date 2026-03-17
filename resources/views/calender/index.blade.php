@@ -3,6 +3,9 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Minha Agenda') }}
         </h2>
+        <div id="live-clock" class="text-lg font-mono bg-gray-800 text-white px-4 py-1 rounded-lg shadow">
+                00:00:00
+            </div>
     </x-slot>
 
     <div class="py-12">
@@ -53,4 +56,14 @@
             </div>
         </div>
     </div>
+    <script>
+        // Lógica do Relógio
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR');
+            document.getElementById('live-clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </x-app-layout>
