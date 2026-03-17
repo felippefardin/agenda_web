@@ -32,5 +32,8 @@
                 {{ $slot }}
             </main>
         </div>
+        <div id="flash-container" class="fixed top-5 right-5 z-[2000] flex flex-col gap-3"></div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     </body>
 </html>

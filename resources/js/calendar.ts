@@ -5,6 +5,8 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    
+
     /* --- LÓGICA DO RELÓGIO EM TEMPO REAL --- */
     const headerTitle = document.querySelector('.font-semibold.text-xl');
     if (headerTitle && !document.getElementById('live-clock')) {
@@ -258,4 +260,6 @@ document.getElementById("saveEvent")?.addEventListener("click", () => {
             modal.classList.add("hidden")
         }
     })
+
+    
 });
