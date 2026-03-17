@@ -217,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erro ao salvar evento:", error)
         })
     })
+    
 
     /* EXCLUIR EVENTO */
     document.getElementById("deleteEvent")?.addEventListener("click", () => {

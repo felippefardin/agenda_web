@@ -4,6 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Minha Agenda') }}
             </h2>
+
             <div id="live-clock" class="text-lg font-mono bg-gray-800 text-white px-4 py-1 rounded-lg shadow">
                 00:00:00
             </div>
@@ -18,111 +19,198 @@
         </div>
     </div>
 
+    <!-- MODAL CRIAR EVENTO -->
     <div id="eventModal"
-class="fixed inset-0 hidden items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+    class="fixed inset-0 hidden items-center justify-center bg-black/40 backdrop-blur-sm z-50">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-modal">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-modal">
 
-    <!-- HEADER -->
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">
-            Evento
-        </h2>
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">
+                    Evento
+                </h2>
 
-        <button id="closeModal"
-        class="text-gray-400 hover:text-red-500 text-xl">
-        ✕
-        </button>
+                <button id="closeModal"
+                class="text-gray-400 hover:text-red-500 text-xl">
+                ✕
+                </button>
+            </div>
+
+            <!-- FORM -->
+            <div class="space-y-3">
+
+                <input id="eventId" type="hidden">
+
+                <div>
+                    <label class="text-sm text-gray-500">Título</label>
+                    <input id="title"
+                    class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nome do evento">
+                </div>
+
+                <div>
+                    <label class="text-sm text-gray-500">Descrição</label>
+                    <textarea id="description"
+                    class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+                    rows="2"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="text-sm text-gray-500">Data</label>
+                        <input id="date" type="date"
+                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-500">Hora</label>
+                        <input id="time" type="time"
+                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="text-sm text-gray-500">Prioridade</label>
+                        <select id="priority"
+                        class="w-full border rounded-lg p-2">
+
+                            <option value="normal">Normal</option>
+                            <option value="high">Alta</option>
+                            <option value="urgent">Urgente</option>
+
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-500">Status</label>
+                        <select id="status"
+                        class="w-full border rounded-lg p-2">
+
+                            <option>Pendente</option>
+                            <option>Concluído</option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input id="shared" type="checkbox">
+                    <label class="text-sm text-gray-600">
+                        Compartilhar evento
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="flex justify-between mt-6">
+
+                <button id="deleteEvent"
+                class="px-4 py-2 text-red-500 border border-red-200 rounded-lg hover:bg-red-50">
+                    Excluir
+                </button>
+
+                <button id="saveEvent"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
+                    Salvar
+                </button>
+
+            </div>
+
+        </div>
     </div>
 
-    <!-- FORM -->
-    <div class="space-y-3">
 
-        <input id="eventId" type="hidden">
+    <!-- MODAL EDITAR EVENTO -->
+    <div id="editEventModal"
+    class="fixed inset-0 hidden items-center justify-center bg-black/40 backdrop-blur-sm z-50">
 
-        <div>
-            <label class="text-sm text-gray-500">Título</label>
-            <input id="title"
-            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-            placeholder="Nome do evento">
-        </div>
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6">
 
-        <div>
-            <label class="text-sm text-gray-500">Descrição</label>
-            <textarea id="description"
-            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-            rows="2"></textarea>
-        </div>
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">
+                    Editar Evento
+                </h2>
 
-        <div class="grid grid-cols-2 gap-3">
-
-            <div>
-                <label class="text-sm text-gray-500">Data</label>
-                <input id="date" type="date"
-                class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                <button id="closeEditModal"
+                class="text-gray-400 hover:text-red-500 text-xl">
+                ✕
+                </button>
             </div>
 
-            <div>
-                <label class="text-sm text-gray-500">Hora</label>
-                <input id="time" type="time"
-                class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+            <div class="space-y-3">
+
+                <input id="editEventId" type="hidden">
+
+                <div>
+                    <label class="text-sm text-gray-500">Título</label>
+                    <input id="editTitle"
+                    class="w-full border rounded-lg p-2">
+                </div>
+
+                <div>
+                    <label class="text-sm text-gray-500">Descrição</label>
+                    <textarea id="editDescription"
+                    class="w-full border rounded-lg p-2"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="text-sm text-gray-500">Data</label>
+                        <input id="editDate"
+                        type="date"
+                        class="w-full border rounded-lg p-2">
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-500">Hora</label>
+                        <input id="editTime"
+                        type="time"
+                        class="w-full border rounded-lg p-2">
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="text-sm text-gray-500">Prioridade</label>
+                    <select id="editPriority"
+                    class="w-full border rounded-lg p-2">
+
+                        <option value="normal">Normal</option>
+                        <option value="high">Alta</option>
+                        <option value="urgent">Urgente</option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="flex justify-between mt-6">
+
+                <button id="closeEditModal"
+                class="px-4 py-2 bg-gray-300 rounded-lg">
+                    Cancelar
+                </button>
+
+                <button id="updateEvent"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    Atualizar
+                </button>
+
             </div>
 
         </div>
-
-        <div class="grid grid-cols-2 gap-3">
-
-            <div>
-                <label class="text-sm text-gray-500">Prioridade</label>
-                <select id="priority"
-                class="w-full border rounded-lg p-2">
-
-                    <option value="normal">Normal</option>
-                    <option value="high">Alta</option>
-                    <option value="urgent">Urgente</option>
-
-                </select>
-            </div>
-
-            <div>
-                <label class="text-sm text-gray-500">Status</label>
-                <select id="status"
-                class="w-full border rounded-lg p-2">
-
-                    <option>Pendente</option>
-                    <option>Concluído</option>
-
-                </select>
-            </div>
-
-        </div>
-
-        <div class="flex items-center gap-2">
-            <input id="shared" type="checkbox">
-            <label class="text-sm text-gray-600">
-                Compartilhar evento
-            </label>
-        </div>
-
     </div>
 
-    <!-- FOOTER -->
-    <div class="flex justify-between mt-6">
-
-        <button id="deleteEvent"
-        class="px-4 py-2 text-red-500 border border-red-200 rounded-lg hover:bg-red-50">
-            Excluir
-        </button>
-
-        <button id="saveEvent"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
-            Salvar
-        </button>
-
-    </div>
-
-</div>
-</div>
 
     <script>
         function updateClock() {
@@ -130,7 +218,9 @@ class="fixed inset-0 hidden items-center justify-center bg-black/40 backdrop-blu
             const timeString = now.toLocaleTimeString('pt-BR');
             document.getElementById('live-clock').textContent = timeString;
         }
+
         setInterval(updateClock, 1000);
         updateClock();
     </script>
+
 </x-app-layout>
