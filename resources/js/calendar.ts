@@ -185,38 +185,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* SALVAR EVENTO (Edição e Criação) */
-    document.getElementById("saveEvent")?.addEventListener("click", () => {
-        let id = eventIdInput.value
-        let data = {
-            title: (document.getElementById("title") as HTMLInputElement).value,
-            description: (document.getElementById("description") as HTMLInputElement).value,
-            date: dateInput.value,
-            time: (document.getElementById("time") as HTMLInputElement).value,
-            priority: (document.getElementById("priority") as HTMLSelectElement).value,
-            status: statusInput ? statusInput.value : 'Pendente',
-            shared: (document.getElementById("shared") as HTMLInputElement).checked
-        }
+document.getElementById("saveEvent")?.addEventListener("click", () => {
+    let id = eventIdInput.value;
+    
+    let data = {
+        title: (document.getElementById("title") as HTMLInputElement).value,
+        description: (document.getElementById("description") as HTMLInputElement).value,
+        date: dateInput.value,
+        time: (document.getElementById("time") as HTMLInputElement).value,
+        priority: (document.getElementById("priority") as HTMLSelectElement).value,
+        status: statusInput ? statusInput.value : 'Pendente',
+        // Converter booleano para 1 ou 0 para evitar problemas no PHP/MySQL
+        shared: (document.getElementById("shared") as HTMLInputElement).checked ? 1 : 0 
+    };
 
-        let url = id && id !== "" ? '/event/' + id : '/event';
-        let method = id && id !== "" ? 'PUT' : 'POST';
+    let url = id && id !== "" ? '/event/' + id : '/event';
+    let method = id && id !== "" ? 'PUT' : 'POST';
 
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(() => {
-            modal.classList.add("hidden")
-            calendar.refetchEvents()
-        })
-        .catch(error => {
-            console.error("Erro ao salvar evento:", error)
-        })
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Força o Laravel a responder JSON em caso de erro
+            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
+        },
+        body: JSON.stringify(data)
     })
+    .then(async response => {
+        const result = await response.json();
+        if (!response.ok) {
+            console.error("Erro do Servidor:", result);
+            throw new Error(result.message || "Erro desconhecido");
+        }
+        return result;
+    })
+    .then(() => {
+        modal.classList.add("hidden");
+        calendar.refetchEvents();
+    })
+    .catch(error => {
+        console.error("Erro na requisição:", error);
+        alert("Erro ao salvar: " + error.message);
+    });
+});
     
 
     /* EXCLUIR EVENTO */
