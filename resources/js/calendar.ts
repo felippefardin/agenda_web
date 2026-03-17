@@ -56,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
             (document.getElementById("title") as HTMLInputElement).value = "";
             (document.getElementById("description") as HTMLInputElement).value = "";
             (document.getElementById("time") as HTMLInputElement).value = "";
+            (document.getElementById("priority") as HTMLSelectElement).value = "normal";
+            (document.getElementById("shared") as HTMLInputElement).checked = false;
             if (statusInput) statusInput.value = "Pendente";
             
             modal.classList.remove("hidden");
@@ -64,7 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
         eventClick: function (info) {
             closeFloatingCards();
             const event = info.event;
-            const color = event.extendedProps.priority === "urgent" ? "#ef4444" : "#3b82f6";
+            const props = event.extendedProps;
+            const color = props.priority === "urgent" ? "#ef4444" : "#3b82f6";
             
             const card = document.createElement('div');
             card.className = 'event-floating-card';
@@ -80,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="close-card" style="cursor:pointer; color:#9ca3af; font-size:18px;">&times;</button>
                 </div>
                 <div style="font-size:13px; color:#4b5563; margin-bottom:12px;">
-                    <p><strong>Status:</strong> ${event.extendedProps.status || 'Pendente'}</p>
-                    <p><strong>Descrição:</strong> ${event.extendedProps.description || 'Sem descrição'}</p>
+                    <p><strong>Status:</strong> ${props.status || 'Pendente'}</p>
+                    <p><strong>Descrição:</strong> ${props.description || 'Sem descrição'}</p>
                 </div>
                 <button id="openEditModal" style="width:100%; background:#f3f4f6; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">
                     Editar Detalhes
@@ -98,21 +101,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.remove();
                 eventIdInput.value = String(event.id);
                 (document.getElementById("title") as HTMLInputElement).value = event.title;
-                (document.getElementById("description") as HTMLInputElement).value = event.extendedProps.description || "";
-                (document.getElementById("time") as HTMLInputElement).value = event.extendedProps.time || "";
-                (document.getElementById("priority") as HTMLSelectElement).value = event.extendedProps.priority || "normal";
-                if (statusInput) statusInput.value = event.extendedProps.status || "Pendente";
-                dateInput.value = event.start?.toISOString().slice(0, 10) ?? "";
+                (document.getElementById("description") as HTMLInputElement).value = props.description || "";
+                (document.getElementById("time") as HTMLInputElement).value = props.time || "";
+                (document.getElementById("priority") as HTMLSelectElement).value = props.priority || "normal";
+                if (statusInput) statusInput.value = props.status || "Pendente";
+                (document.getElementById("shared") as HTMLInputElement).checked = props.shared == 1;
+                
+                dateInput.value = event.startStr.split('T')[0];
                 modal.classList.remove("hidden");
             });
 
             info.jsEvent.preventDefault();
         },
 
-        /* --- AJUSTE AQUI: MUDANÇA AUTOMÁTICA DE DATA AO ARRASTAR --- */
+        /* --- AJUSTE: ATUALIZAÇÃO AO ARRASTAR --- */
         eventDrop: function (info) {
             const event = info.event;
-            const newDate = event.start?.toISOString().split('T')[0];
+            const newDate = event.startStr.split('T')[0];
+            const newTime = event.startStr.includes('T') ? event.startStr.split('T')[1].substring(0, 5) : event.extendedProps.time;
 
             fetch('/event/' + event.id, {
                 method: 'PUT',
@@ -121,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
                 },
                 body: JSON.stringify({ 
-                    title: event.title,
-                    date: newDate 
+                    date: newDate,
+                    time: newTime
                 })
             })
             .then(response => {
@@ -134,10 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         },
 
-        /* --- AJUSTE AQUI: ATUALIZAÇÃO AO REDIMENSIONAR --- */
+        /* --- AJUSTE: ATUALIZAÇÃO AO REDIMENSIONAR --- */
         eventResize: function(info) {
             const event = info.event;
-            const newDate = event.start?.toISOString().split('T')[0];
+            const newDate = event.startStr.split('T')[0];
 
             fetch('/event/' + event.id, {
                 method: 'PUT',
@@ -146,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
                 },
                 body: JSON.stringify({ 
-                    title: event.title,
                     date: newDate 
                 })
             })
@@ -162,6 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
         eventDidMount: function (info) {
             if (info.event.extendedProps.priority === "urgent") {
                 info.el.style.backgroundColor = "#ef4444"
+            } else if (info.event.extendedProps.priority === "high") {
+                info.el.style.backgroundColor = "#f59e0b"
             } else {
                 info.el.style.backgroundColor = "#3b82f6"
             }
@@ -205,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(() => {
             modal.classList.add("hidden")
             calendar.refetchEvents()
-            location.reload()
         })
         .catch(error => {
             console.error("Erro ao salvar evento:", error)
@@ -227,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(() => {
             modal.classList.add("hidden")
             calendar.refetchEvents()
-            location.reload()
         })
     })
 
