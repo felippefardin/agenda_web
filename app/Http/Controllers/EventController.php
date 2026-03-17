@@ -82,6 +82,7 @@ $event = Event::findOrFail($id);
 $event->update([
 'title'=>$request->title,
 'description'=>$request->description,
+'status'      => $request->status,
 'date'=>$request->date,
 'time'=>$request->time,
 'priority'=>$request->priority,

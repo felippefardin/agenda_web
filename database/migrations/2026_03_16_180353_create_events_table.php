@@ -18,6 +18,7 @@ return new class extends Migration
         $table->text('description')->nullable();
         $table->date('date');
         $table->time('time')->nullable();
+        $table->string('status')->default('Pendente');
         $table->enum('priority', ['normal','urgent'])->default('normal');
         $table->timestamps();
     });

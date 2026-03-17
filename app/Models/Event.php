@@ -14,7 +14,8 @@ protected $fillable = [
 'date',
 'time',
 'priority',
-'shared'
+'shared',
+'status'
 ];
 
 }

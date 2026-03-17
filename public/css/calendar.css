@@ -1,89 +1,59 @@
-#calendar{
-max-width:1100px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 5px 20px rgba(0,0,0,0.1);
+#calendar {
+    max-width: 100%;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-.fc-day-today{
-background:#e8f4ff !important;
+/* Estilo dos Eventos no Calendário */
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 5px;
+    border: none !important;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
-.fc-event{
-border-radius:6px;
-padding:3px;
+.fc-event:hover {
+    transform: scale(1.03);
+    z-index: 10;
 }
 
-.fc-event.urgent{
-background:#ff4d4d;
-border:none;
+/* Card Flutuante (Popover) */
+.event-floating-card {
+    position: absolute;
+    z-index: 1000;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    padding: 16px;
+    border-top: 5px solid #3b82f6;
+    animation: fadeIn 0.2s ease-out;
 }
 
-.fc-event.normal{
-background:#4CAF50;
-border:none;
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
-.fc-event.urgent{
-background:#ef4444 !important;
-border:none;
+.card-title {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 1.1em;
 }
 
-.fc-event.normal{
-background:#3b82f6 !important;
-border:none;
+.card-body p {
+    font-size: 0.9em;
+    color: #4b5563;
+    margin-bottom: 8px;
 }
 
-#calendar{
-max-width:100%;
-margin:auto;
-}
-
-.fc {
-    z-index: 1;
-}
-
-#eventModal {
-    z-index: 9999;
-}
-
-/* cores prioridade */
-
-.fc-event.urgent{
-background:#ef4444 !important;
-border:none;
-}
-
-.fc-event.normal{
-background:#3b82f6 !important;
-border:none;
-}
-
-/* animação modal */
-
-#eventModal{
-transition: all .2s ease;
-}
-
-/* cards sidebar */
-
-.today-card{
-padding:10px;
-border-radius:8px;
-font-size:14px;
-color:white;
-}
-
-/* evento normal */
-.fc-event.normal{
-background:#3b82f6 !important;
-border:none;
-}
-
-/* evento urgente */
-.fc-event.urgent{
-background:#ef4444 !important;
-border:none;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
