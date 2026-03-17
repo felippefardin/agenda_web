@@ -74,23 +74,22 @@ return response()->json(['success'=>true]);
 
 }
 
-public function update(Request $request,$id)
+public function update(Request $request, $id)
 {
+    $event = Event::findOrFail($id);
 
-$event = Event::findOrFail($id);
+    // Usamos o operador ?? para manter o valor atual caso o request não traga o novo
+    $event->update([
+        'title'       => $request->title       ?? $event->title,
+        'description' => $request->description ?? $event->description,
+        'status'      => $request->status      ?? $event->status,
+        'date'        => $request->date        ?? $event->date,
+        'time'        => $request->time        ?? $event->time,
+        'priority'    => $request->priority    ?? $event->priority,
+        'shared'      => $request->has('shared') ? $request->shared : $event->shared
+    ]);
 
-$event->update([
-'title'=>$request->title,
-'description'=>$request->description,
-'status'      => $request->status,
-'date'=>$request->date,
-'time'=>$request->time,
-'priority'=>$request->priority,
-'shared'=>$request->shared ?? false
-]);
-
-return response()->json(['success'=>true]);
-
+    return response()->json(['success' => true]);
 }
 
 public function destroy($id)

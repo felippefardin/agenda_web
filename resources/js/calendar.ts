@@ -109,46 +109,54 @@ document.addEventListener('DOMContentLoaded', () => {
             info.jsEvent.preventDefault();
         },
 
-        /* ARRASTAR EVENTO PARA OUTRO DIA */
-
+        /* --- AJUSTE AQUI: MUDANÇA AUTOMÁTICA DE DATA AO ARRASTAR --- */
         eventDrop: function (info) {
+            const event = info.event;
+            const newDate = event.start?.toISOString().split('T')[0];
 
-            let date = info.event.start?.toISOString().slice(0, 10)
-
-            fetch('/event/' + info.event.id, {
+            fetch('/event/' + event.id, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
                 },
-                body: JSON.stringify({ date: date })
+                body: JSON.stringify({ 
+                    title: event.title,
+                    date: newDate 
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error();
             })
             .catch(() => {
-                alert("Erro ao mover evento")
-                info.revert()
-            })
-
+                alert("Erro ao mover evento");
+                info.revert();
+            });
         },
 
-        /* REDIMENSIONAR EVENTO */
+        /* --- AJUSTE AQUI: ATUALIZAÇÃO AO REDIMENSIONAR --- */
+        eventResize: function(info) {
+            const event = info.event;
+            const newDate = event.start?.toISOString().split('T')[0];
 
-        eventResize: function(info){
-
-            let date = info.event.start?.toISOString().slice(0, 10)
-
-            fetch('/event/' + info.event.id,{
-                method:'PUT',
-                headers:{
-                    'Content-Type':'application/json',
-                    'X-CSRF-TOKEN':(document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
+            fetch('/event/' + event.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
                 },
-                body: JSON.stringify({date:date})
+                body: JSON.stringify({ 
+                    title: event.title,
+                    date: newDate 
+                })
             })
-            .catch(()=>{
-                alert("Erro ao atualizar evento")
-                info.revert()
+            .then(response => {
+                if (!response.ok) throw new Error();
             })
-
+            .catch(() => {
+                alert("Erro ao atualizar duração");
+                info.revert();
+            });
         },
 
         eventDidMount: function (info) {
@@ -163,19 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
     calendar.render()
 
     /* FECHAR CARDS AO CLICAR FORA */
-
     document.addEventListener('click', (e) => {
         if (!(e.target as HTMLElement).closest('.event-floating-card') && !(e.target as HTMLElement).closest('.fc-event')) {
             closeFloatingCards();
         }
     });
 
-    /* SALVAR EVENTO */
-
+    /* SALVAR EVENTO (Edição e Criação) */
     document.getElementById("saveEvent")?.addEventListener("click", () => {
-
         let id = eventIdInput.value
-
         let data = {
             title: (document.getElementById("title") as HTMLInputElement).value,
             description: (document.getElementById("description") as HTMLInputElement).value,
@@ -206,15 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error("Erro ao salvar evento:", error)
         })
-
     })
 
     /* EXCLUIR EVENTO */
-
     document.getElementById("deleteEvent")?.addEventListener("click", () => {
-
         let id = eventIdInput.value
-
         if (!id) return
         if (!confirm("Deseja excluir este evento?")) return
 
@@ -229,11 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             calendar.refetchEvents()
             location.reload()
         })
-
     })
 
     /* FECHAR MODAL */
-
     document.getElementById("closeModal")?.addEventListener("click", () => {
         modal.classList.add("hidden")
     })
@@ -243,5 +241,4 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add("hidden")
         }
     })
-
 });
