@@ -122,15 +122,16 @@
 
         /* ATUALIZAR BARRA LATERAL COM CARDS */
         function loadTodayEvents() {
-            fetch('/events/today')
-                .then(res => res.json())
-                .then(events => {
-                    let container = document.getElementById("todayEvents");
-                    container.innerHTML = "";
-                    if (events.length === 0) {
-                        container.innerHTML = '<div class="text-gray-400 text-sm italic">Nenhum compromisso hoje</div>';
-                        return;
-                    }
+    // Usa a função do Blade para gerar a URL correta com a subpasta
+    fetch("{{ url('/events/today') }}") 
+        .then(res => res.json())
+        .then(events => {
+            let container = document.getElementById("todayEvents");
+            container.innerHTML = "";
+            if (events.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm italic">Nenhum compromisso hoje</div>';
+                return;
+            }
                     events.forEach(event => {
                         let div = document.createElement("div");
                         div.className = `sidebar-event-card priority-${event.priority}`;

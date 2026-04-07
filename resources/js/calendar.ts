@@ -4,46 +4,41 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 document.addEventListener('DOMContentLoaded', () => {
+    // CAPTURA A URL BASE DO PROJETO DA META TAG (Essencial para subpastas no XAMPP)
+    const APP_URL = document.querySelector('meta[name="app-url"]')?.getAttribute('content') || '';
 
-    /* FLASHCARD SYSTEM */
+    /* --- FLASHCARD SYSTEM --- */
+    const showFlash = (message: string, type: string = "success") => {
+        const container = document.getElementById("flash-container");
+        if (!container) return;
 
-const showFlash = (message: string, type: string = "success") => {
+        const flash = document.createElement("div");
+        const bg = type === "error" ? "#ef4444" : "#10b981";
+        const icon = type === "error" ? "🗑" : "📅";
 
-    const container = document.getElementById("flash-container");
-    if (!container) return;
+        flash.style.cssText = `
+            background:${bg};
+            color:white;
+            padding:12px 18px;
+            border-radius:8px;
+            font-size:14px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.2);
+            display:flex;
+            align-items:center;
+            gap:10px;
+            animation:slideIn .3s ease;
+        `;
 
-    const flash = document.createElement("div");
+        flash.innerHTML = `${icon} ${message}`;
+        container.appendChild(flash);
 
-    const bg = type === "error" ? "#ef4444" : "#10b981";
-    const icon = type === "error" ? "🗑" : "📅";
-
-    flash.style.cssText = `
-        background:${bg};
-        color:white;
-        padding:12px 18px;
-        border-radius:8px;
-        font-size:14px;
-        box-shadow:0 5px 20px rgba(0,0,0,0.2);
-        display:flex;
-        align-items:center;
-        gap:10px;
-        animation:slideIn .3s ease;
-    `;
-
-    flash.innerHTML = `${icon} ${message}`;
-
-    container.appendChild(flash);
-
-    setTimeout(() => {
-
-        flash.style.opacity = "0";
-        flash.style.transform = "translateY(-10px)";
-        flash.style.transition = "all .3s";
-
-        setTimeout(() => flash.remove(), 300);
-
-    }, 3000);
-}
+        setTimeout(() => {
+            flash.style.opacity = "0";
+            flash.style.transform = "translateY(-10px)";
+            flash.style.transition = "all .3s";
+            setTimeout(() => flash.remove(), 300);
+        }, 3000);
+    }
 
     /* --- LÓGICA DO RELÓGIO EM TEMPO REAL --- */
     const headerTitle = document.querySelector('.font-semibold.text-xl');
@@ -61,6 +56,7 @@ const showFlash = (message: string, type: string = "success") => {
         updateClock();
     }
 
+    /* --- CONFIGURAÇÃO DO CALENDÁRIO --- */
     const calendarEl = document.getElementById('calendar')
     if (!calendarEl) return
 
@@ -76,14 +72,13 @@ const showFlash = (message: string, type: string = "success") => {
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
-        initialDate: new Date(),
         locale: 'pt-br',
         headerToolbar: {
             left: 'prev,next',
             center: 'title',
             right: 'today dayGridMonth,timeGridWeek'
         },
-        events: '/events',
+        events: `${APP_URL}/events`, 
 
         editable: true,
         eventStartEditable: true,
@@ -98,8 +93,6 @@ const showFlash = (message: string, type: string = "success") => {
             (document.getElementById("time") as HTMLInputElement).value = "";
             (document.getElementById("priority") as HTMLSelectElement).value = "normal";
             (document.getElementById("shared") as HTMLInputElement).checked = false;
-            if (statusInput) statusInput.value = "Pendente";
-            
             modal.classList.remove("hidden");
         },
 
@@ -144,9 +137,7 @@ const showFlash = (message: string, type: string = "success") => {
                 (document.getElementById("description") as HTMLInputElement).value = props.description || "";
                 (document.getElementById("time") as HTMLInputElement).value = props.time || "";
                 (document.getElementById("priority") as HTMLSelectElement).value = props.priority || "normal";
-                if (statusInput) statusInput.value = props.status || "Pendente";
                 (document.getElementById("shared") as HTMLInputElement).checked = props.shared == 1;
-                
                 dateInput.value = event.startStr.split('T')[0];
                 modal.classList.remove("hidden");
             });
@@ -154,177 +145,88 @@ const showFlash = (message: string, type: string = "success") => {
             info.jsEvent.preventDefault();
         },
 
-        /* --- AJUSTE: ATUALIZAÇÃO AO ARRASTAR --- */
         eventDrop: function (info) {
             const event = info.event;
-            const newDate = event.startStr.split('T')[0];
-            const newTime = event.startStr.includes('T') ? event.startStr.split('T')[1].substring(0, 5) : event.extendedProps.time;
-
-            fetch('/event/' + event.id, {
+            fetch(`${APP_URL}/event/${event.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
                 },
                 body: JSON.stringify({ 
-                    date: newDate,
-                    time: newTime
+                    date: event.startStr.split('T')[0],
+                    time: event.startStr.includes('T') ? event.startStr.split('T')[1].substring(0, 5) : event.extendedProps.time
                 })
             })
-            .then(response => {
-                if (!response.ok) throw new Error();
-            })
-            .catch(() => {
-                alert("Erro ao mover evento");
-                info.revert();
-            });
-        },
-
-        /* --- AJUSTE: ATUALIZAÇÃO AO REDIMENSIONAR --- */
-        eventResize: function(info) {
-            const event = info.event;
-            const newDate = event.startStr.split('T')[0];
-
-            fetch('/event/' + event.id, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
-                },
-                body: JSON.stringify({ 
-                    date: newDate 
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error();
-            })
-            .catch(() => {
-                alert("Erro ao atualizar duração");
-                info.revert();
-            });
+            .then(res => { if (!res.ok) throw new Error(); })
+            .catch(() => info.revert());
         },
 
         eventDidMount: function (info) {
-            if (info.event.extendedProps.priority === "urgent") {
-                info.el.style.backgroundColor = "#ef4444"
-            } else if (info.event.extendedProps.priority === "high") {
-                info.el.style.backgroundColor = "#f59e0b"
-            } else {
-                info.el.style.backgroundColor = "#3b82f6"
-            }
+            const p = info.event.extendedProps.priority;
+            info.el.style.backgroundColor = p === "urgent" ? "#ef4444" : (p === "high" ? "#f59e0b" : "#3b82f6");
         }
     })
 
     calendar.render()
 
-    /* FECHAR CARDS AO CLICAR FORA */
-    document.addEventListener('click', (e) => {
-        if (!(e.target as HTMLElement).closest('.event-floating-card') && !(e.target as HTMLElement).closest('.fc-event')) {
-            closeFloatingCards();
-        }
-    });
-
     /* SALVAR EVENTO (Edição e Criação) */
-document.getElementById("saveEvent")?.addEventListener("click", () => {
-    let id = eventIdInput.value;
-    
-    let data = {
-        title: (document.getElementById("title") as HTMLInputElement).value,
-        description: (document.getElementById("description") as HTMLInputElement).value,
-        date: dateInput.value,
-        time: (document.getElementById("time") as HTMLInputElement).value,
-        priority: (document.getElementById("priority") as HTMLSelectElement).value,
-        status: statusInput ? statusInput.value : 'Pendente',
-        // Converter booleano para 1 ou 0 para evitar problemas no PHP/MySQL
-        shared: (document.getElementById("shared") as HTMLInputElement).checked ? 1 : 0 
-    };
+    document.getElementById("saveEvent")?.addEventListener("click", () => {
+        let id = eventIdInput.value;
+        let data = {
+            title: (document.getElementById("title") as HTMLInputElement).value,
+            description: (document.getElementById("description") as HTMLInputElement).value,
+            date: dateInput.value,
+            time: (document.getElementById("time") as HTMLInputElement).value,
+            priority: (document.getElementById("priority") as HTMLSelectElement).value,
+            shared: (document.getElementById("shared") as HTMLInputElement).checked ? 1 : 0 
+        };
 
-    let url = id && id !== "" ? '/event/' + id : '/event';
-    let method = id && id !== "" ? 'PUT' : 'POST';
+        let url = id && id !== "" ? `${APP_URL}/event/${id}` : `${APP_URL}/event`;
+        let method = id && id !== "" ? 'PUT' : 'POST';
 
-    fetch(url, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json', // Força o Laravel a responder JSON em caso de erro
-            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
-        },
-        body: JSON.stringify(data)
-    })
-    .then(async response => {
-        const result = await response.json();
-        if (!response.ok) {
-            console.error("Erro do Servidor:", result);
-            throw new Error(result.message || "Erro desconhecido");
-        }
-        return result;
-    })
-    .then(() => {
-
-    modal.classList.add("hidden");
-    calendar.refetchEvents();
-
-    if (id && id !== "") {
-        showFlash("Compromisso editado com sucesso");
-    } else {
-        showFlash("Compromisso adicionado com sucesso");
-    }
-
-})
-    .catch(error => {
-        console.error("Erro na requisição:", error);
-        alert("Erro ao salvar: " + error.message);
-    });
-});
-    
-
-    /* EXCLUIR EVENTO - VERSÃO CORRIGIDA */
-document.getElementById("deleteEvent")?.addEventListener("click", () => {
-    let id = eventIdInput.value;
-    if (!id) return;
-    
-    if (!confirm("Deseja realmente excluir este compromisso?")) return;
-
-    fetch('/event/' + id, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content,
-            'Accept': 'application/json'
-        }
-    })
-    .then(async response => {
-        if (response.ok) {
-            // Primeiro exibe o flashcard
-            showFlash('Compromisso excluído', 'error');
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
+            },
+            body: JSON.stringify(data)
+        })
+        .then(async response => {
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "Erro");
             
-            // Depois fecha o modal e limpa a tela
             modal.classList.add("hidden");
-            modal.style.display = 'none';
-            
-            // Atualiza o calendário
             calendar.refetchEvents();
-        } else {
-            const errorData = await response.json();
-            showFlash(errorData.message || 'Erro ao excluir', 'error');
-        }
-    })
-    .catch(error => {
-        console.error("Erro na exclusão:", error);
-        showFlash('Erro de conexão ao excluir', 'error');
+            showFlash(id ? "Compromisso editado" : "Compromisso adicionado");
+        })
+        .catch(err => alert("Erro ao salvar: " + err.message));
     });
-});
-    
 
-    /* FECHAR MODAL */
-    document.getElementById("closeModal")?.addEventListener("click", () => {
-        modal.classList.add("hidden")
-    })
+    /* EXCLUIR EVENTO */
+    document.getElementById("deleteEvent")?.addEventListener("click", () => {
+        let id = eventIdInput.value;
+        if (!id || !confirm("Deseja realmente excluir?")) return;
 
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.classList.add("hidden")
-        }
-    })
+        fetch(`${APP_URL}/event/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => {
+            if (res.ok) {
+                modal.classList.add("hidden");
+                calendar.refetchEvents();
+                showFlash('Compromisso excluído', 'error');
+            }
+        });
+    });
 
-    
+    document.querySelectorAll(".closeModal").forEach(btn => {
+        btn.addEventListener("click", () => modal.classList.add("hidden"));
+    });
 });

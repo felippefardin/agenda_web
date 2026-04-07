@@ -60,6 +60,11 @@ return [
             'report' => false,
         ],
 
+        'backup_diario' => [
+            'driver' => 'local',
+            'root' => 'S:\ATUACAO MEIO\Divisao de Apoio Administrativo\Felippe.andreata\data-agenda-web\backup-diario',
+        ],
+
     ],
 
     /*
