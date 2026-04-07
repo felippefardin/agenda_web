@@ -19,7 +19,7 @@ return new class extends Migration
         $table->date('date');
         $table->time('time')->nullable();
         $table->string('status')->default('Pendente');
-        $table->enum('priority', ['normal','urgent'])->default('normal');
+        $table->string('priority')->default('normal');
         $table->timestamps();
     });
     }
