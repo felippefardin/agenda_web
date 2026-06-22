@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         locale: 'pt-br',
+        displayEventTime: false,
+        eventDisplay: 'block',
         headerToolbar: {
             left: 'prev,next',
             center: 'title',
