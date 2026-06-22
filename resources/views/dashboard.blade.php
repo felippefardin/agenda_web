@@ -1,27 +1,43 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-    <div id="flash-container" class="fixed top-5 right-5 z-[2000] flex flex-col gap-3"></div>
-
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Agenda
+            {{ __('Agenda') }}
         </h2>
     </x-slot>
 
-    <div class="py-6">
+    <div id="flash-container" class="fixed top-5 right-5 z-[2000] flex flex-col gap-3"></div>
+
+    <div class="py-8">
         <div class="max-w-[95%] mx-auto sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Total de Eventos</h3>
+                    <p class="text-2xl font-semibold text-gray-800 mt-1">12</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Eventos este mês</h3>
+                    <p class="text-2xl font-semibold text-gray-800 mt-1">5</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Pendentes</h3>
+                    <p class="text-2xl font-semibold text-gray-800 mt-1">2</p>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-                <div class="md:col-span-3 bg-white shadow rounded-xl p-6">
-                    <div id="calendar"></div>
+                <div class="md:col-span-3 bg-white shadow-sm rounded-xl p-6">
+                    <div id="calendar" class="w-full"></div>
                 </div>
 
-                <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
                         <i class="fa-solid fa-clock text-blue-600"></i> Hoje
                     </h3>
-                    <div id="todayEvents" class="space-y-3">
+                    <div id="todayEvents" class="space-y-4">
                         <div class="text-gray-400 text-sm italic">Carregando compromissos...</div>
                     </div>
                 </div>
@@ -83,36 +99,22 @@
     @vite(['resources/js/calendar.ts'])
 
     <style>
-        /* Cards Flutuantes da Barra Lateral */
         .sidebar-event-card {
             background: white;
             border-radius: 12px;
             padding: 14px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-left: 5px solid #3b82f6;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: default;
-        }
-        .sidebar-event-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #3b82f6;
+            transition: all 0.2s;
         }
         .priority-urgent { border-left-color: #ef4444 !important; }
         .priority-high { border-left-color: #f59e0b !important; }
 
-        /* Animações */
         @keyframes modalPop {
-            0% { opacity: 0; transform: scale(.9) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+            0% { opacity: 0; transform: scale(.95); }
+            100% { opacity: 1; transform: scale(1); }
         }
         .animate-modal { animation: modalPop .2s ease; }
-
-        @keyframes bounce-in {
-            0% { transform: translateX(100%); opacity: 0; }
-            70% { transform: translateX(-10%); }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        .animate-bounce-in { animation: bounce-in 0.5s ease-out; }
     </style>
 
     <script>
@@ -120,27 +122,25 @@
         function closeModal() { modal.classList.add("hidden"); }
         document.querySelectorAll(".closeModal").forEach(btn => btn.addEventListener("click", closeModal));
 
-        /* ATUALIZAR BARRA LATERAL COM CARDS */
         function loadTodayEvents() {
-    // Usa a função do Blade para gerar a URL correta com a subpasta
-    fetch("{{ url('/events/today') }}") 
-        .then(res => res.json())
-        .then(events => {
-            let container = document.getElementById("todayEvents");
-            container.innerHTML = "";
-            if (events.length === 0) {
-                container.innerHTML = '<div class="text-gray-400 text-sm italic">Nenhum compromisso hoje</div>';
-                return;
-            }
+            fetch("{{ url('/events/today') }}") 
+                .then(res => res.json())
+                .then(events => {
+                    let container = document.getElementById("todayEvents");
+                    container.innerHTML = "";
+                    if (events.length === 0) {
+                        container.innerHTML = '<div class="text-gray-400 text-sm italic">Nenhum compromisso hoje</div>';
+                        return;
+                    }
                     events.forEach(event => {
                         let div = document.createElement("div");
                         div.className = `sidebar-event-card priority-${event.priority}`;
                         div.innerHTML = `
                             <div class="flex justify-between items-start">
                                 <span class="font-bold text-gray-800 text-sm">${event.title}</span>
-                                <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">${event.time || '--:--'}</span>
+                                <span class="text-xs font-mono bg-gray-50 px-2 py-0.5 rounded text-gray-500">${event.time || '--:--'}</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2 line-clamp-2">${event.description || 'Sem descrição'}</p>
+                            <p class="text-xs text-gray-500 mt-1">${event.description || ''}</p>
                         `;
                         container.appendChild(div);
                     });
