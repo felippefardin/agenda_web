@@ -13,19 +13,19 @@
         <div class="max-w-[95%] mx-auto sm:px-6 lg:px-8">
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Total de Eventos</h3>
-                    <p class="text-2xl font-semibold text-gray-800 mt-1">12</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Eventos este mês</h3>
-                    <p class="text-2xl font-semibold text-gray-800 mt-1">5</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Pendentes</h3>
-                    <p class="text-2xl font-semibold text-gray-800 mt-1">2</p>
-                </div>
-            </div>
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
+        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Total de Eventos</h3>
+        <p class="text-2xl font-semibold text-gray-800 mt-1">{{ $totalEvents }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Eventos este mês</h3>
+        <p class="text-2xl font-semibold text-gray-800 mt-1">{{ $eventsThisMonth }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
+        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">Pendentes</h3>
+        <p class="text-2xl font-semibold text-gray-800 mt-1">{{ $pendingEvents }}</p>
+    </div>
+</div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 

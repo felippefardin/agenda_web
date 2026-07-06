@@ -37,6 +37,7 @@ class EventController extends Controller
 
         return response()->json($data);
     }
+    
 
     public function getTodayEvents()
     {

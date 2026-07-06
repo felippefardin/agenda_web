@@ -5,6 +5,9 @@ use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use App\Models\Event;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,8 +16,21 @@ Route::get('/', function () {
 Route::middleware(['auth','verified'])->group(function () {
 
     Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    $userId = Auth::id();
+
+    // Contagem apenas dos seus eventos
+    $totalEvents = Event::where('user_id', $userId)->count();
+    
+    $eventsThisMonth = Event::where('user_id', $userId)
+        ->whereMonth('date', Carbon::now()->month)
+        ->count();
+        
+    $pendingEvents = Event::where('user_id', $userId)
+        ->where('status', 'pending') // Ajuste 'pending' se no seu banco for 'pendente'
+        ->count();
+
+    return view('dashboard', compact('totalEvents', 'eventsThisMonth', 'pendingEvents'));
+})->middleware(['auth', 'verified'])->name('dashboard');
 
     // EVENTOS
     Route::get('/events',[EventController::class,'getEvents']);
